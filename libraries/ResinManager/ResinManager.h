@@ -13,6 +13,12 @@ class ResinManager {
 public:
 	ResinManager();
 
+	void init_motor(int pinPWM1, int pinPWM2, int pinSpeed);
+	void change_direction();
+	void modify_speed(int speed);
+	void stop_motor();
+	int get_actual_speed();
+
 	void set_mode(resin_mode mode);
 	void set_time(int minutes);
 	resin_mode get_mode();
@@ -25,6 +31,12 @@ private:
 	Countimer timer;
 	resin_mode _mode;
 	int _minutes;
+
+	int _pinPWM1;
+	int _pinPWM2;
+	int _pinSpeed;
+	boolean _motor_dir = 0;
+	int _motor_speed;
 };
 
 #endif

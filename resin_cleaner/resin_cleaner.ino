@@ -6,6 +6,10 @@
 #define PIN_INCREASE_SOUND 5
 #define PIN_DECREASE_SOUND 4
 
+#define PIN_PWM1 9
+#define PIN_PWM2 10
+#define PIN_SPEED 0
+
 enum states {
   STATE_READY,
   STATE_EXECUTION,
@@ -75,7 +79,7 @@ void clear_time() {
 }
 
 void reduce_time() {
-  if (RM.get_time() > 0) {
+  if (RM.get_time() > 1) {
     RM.set_time(RM.get_time() - 1);
     draw();
     clear_time();
@@ -110,10 +114,10 @@ void onRefresh() {
 void onComplete() {
   lcd.setCursor(6,3);
   lcd.print("Complete!!!");
-
   delay(2000);
-  state = STATE_READY;
+  state = STATE_CLEARING;
   lcd.clear();
+  RM.stop();
 }
 
 void setup() {
@@ -126,7 +130,7 @@ void setup() {
   lcd.begin();
   lcd.backlight();
 
-  RM.set_time(1);
+  RM.init_motor(PIN_PWM1, PIN_PWM2, PIN_SPEED);
   state = STATE_READY;
 }
 
@@ -174,6 +178,7 @@ void loop() {
       RM.start();
     }
   } else if (state == STATE_CLEARING) {
+    RM.stop_motor();
     state = STATE_READY;
   }
 
