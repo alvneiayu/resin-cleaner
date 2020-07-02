@@ -20,8 +20,8 @@ enum states {
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 ResinManager RM;
 int state = STATE_READY;
-bool stop_start_blocked = false;
-bool change_blocked = false;
+int last_start_stop = 0;
+int last_change = 0;
 
 void draw_header() {
   lcd.setCursor(0,0);
@@ -83,7 +83,7 @@ void reduce_time() {
     RM.set_time(RM.get_time() - 1);
     draw();
     clear_time();
-    delay(500);
+    delay(100);
   }
 }
 
@@ -92,7 +92,7 @@ void increment_time() {
     RM.set_time(RM.get_time() + 1);
     clear_time();
     draw();
-    delay(500);
+    delay(100);
   }
 }
 
@@ -140,14 +140,6 @@ void loop() {
   int increase_sound = digitalRead(PIN_INCREASE_SOUND);
   int decrease_sound = digitalRead(PIN_DECREASE_SOUND);
 
-  if (start_stop == LOW && stop_start_blocked == true) {
-    stop_start_blocked = false;
-  }
-
-  if (change_mode == LOW && change_blocked == true) {
-    change_blocked = false;
-  }
-
   if (state == STATE_READY) {
     if (increase_sound == HIGH) {
       increment_time();
@@ -155,25 +147,21 @@ void loop() {
     } else if (decrease_sound == HIGH) {
       reduce_time();
       draw();
-    } else if (change_mode == HIGH && change_blocked == false) {
+    } else if (change_mode == HIGH && change_mode != last_change) {
       modify_mode();
-      change_blocked = true;
       draw();
-    } else if (start_stop == HIGH && stop_start_blocked == false) {
+    } else if (start_stop == HIGH && start_stop != last_start_stop) {
       state = STATE_EXECUTION;
       RM.run(onComplete, onRefresh);
       draw_mode_execution();
-      stop_start_blocked = true;
-      delay(100);
     } else {
       draw();
     }
   } else if (state == STATE_EXECUTION) {
-    if (start_stop == HIGH && stop_start_blocked == false) {
+    if (start_stop == HIGH && start_stop != last_start_stop) {
       lcd.clear();
       RM.stop();
       state = STATE_CLEARING;
-      stop_start_blocked = true;
     } else {
       RM.start();
     }
@@ -182,5 +170,7 @@ void loop() {
     state = STATE_READY;
   }
 
+  last_start_stop = start_stop;
+  last_change = change_mode;
   delay(10);
 }
