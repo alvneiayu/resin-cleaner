@@ -32,6 +32,17 @@ void draw_header() {
   lcd.print("##");
 }
 
+void draw_init() {
+  lcd.setCursor(5,0);
+  lcd.print("----------");
+  lcd.setCursor(5,1);
+  lcd.print("| PHTech |");
+  lcd.setCursor(5,2);
+  lcd.print("----------");
+  lcd.setCursor(0,3);
+  lcd.print("alvaroneay@gmail.com");
+}
+
 void draw() {  
   draw_header();
   lcd.setCursor(3,1);
@@ -132,6 +143,10 @@ void setup() {
 
   RM.init_motor(PIN_PWM1, PIN_PWM2, PIN_SPEED);
   state = STATE_READY;
+
+  draw_init();
+  delay(3000);
+  lcd.clear();
 }
 
 void loop() {
